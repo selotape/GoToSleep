@@ -27,12 +27,14 @@ class MainActivity : AppCompatActivity() {
         val enableDisableToggle = findViewById<CheckBox>(R.id.enableDisableToggle)
         val timeInput = findViewById<TimePicker>(R.id.turnOffTimeInput)
         val freqInput = findViewById<NumberPicker>(R.id.turnOffFrequencyInput)
+        freqInput.minValue=1
+        freqInput.maxValue=30
 
         val prefs = getPreferences(MODE_PRIVATE)
         val editor: SharedPreferences.Editor = prefs.edit()
 
 
-        enableDisableToggle.isChecked = prefs.getBoolean(ENABLED, false)
+        enableDisableToggle.isChecked = prefs.getBoolean(ENABLED, true)
         timeInput.hour = prefs.getInt(TIME_HOUR, 23)
         timeInput.minute = prefs.getInt(TIME_MIN, 0)
         freqInput.value = prefs.getInt(FREQ_IN_MINUTES, 5)
