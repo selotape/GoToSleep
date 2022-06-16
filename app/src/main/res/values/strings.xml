@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Go to Sleep</string>
-    <string name="edit_message">Enter a message</string>
-    <string name="button_send">Send</string>
+    <string name="turn_off_time">When?</string>
+    <string name="turn_off_frequency">When?</string>
+    <string name="onoff_button">Enable?</string>
 </resources>
