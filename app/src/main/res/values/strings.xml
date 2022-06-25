@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">Go to Sleep</string>
     <string name="turn_off_time">When?</string>
-    <string name="turn_off_frequency">When?</string>
+    <string name="turn_off_frequency">How often?</string>
     <string name="onoff_button">Enable?</string>
+    <string name="notification_title">GO TO SLEEP!💤😴🛌</string>
+    <string name="notification_text">@string/notification_title</string>
+    <string name="channel_id">ignored</string>
+    <string name="channel_description">ignored</string>
+    <string name="channel_name">ignored</string>
 </resources>
