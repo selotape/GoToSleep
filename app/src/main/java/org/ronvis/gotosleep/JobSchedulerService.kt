@@ -1,6 +1,7 @@
 package org.ronvis.gotosleep
 
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.Worker
@@ -15,6 +16,11 @@ class NotifierWorker(private val ctx: Context, params: WorkerParameters) : Worke
     }
 
     private fun raiseNotification() {
+        val prefs = ctx.getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE)
+        if (!prefs.getBoolean(ENABLED, true)) {
+            return
+        }
+
         with(NotificationManagerCompat.from(ctx)) {
             // notificationId is a unique int for each notification that you must define
             notify(123, createNotification().build())
