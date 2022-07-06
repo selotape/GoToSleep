@@ -8,4 +8,5 @@
     <string name="channel_id">ignored</string>
     <string name="channel_description">ignored</string>
     <string name="channel_name">ignored</string>
+    <string name="worker_name">worker_name</string>
 </resources>
