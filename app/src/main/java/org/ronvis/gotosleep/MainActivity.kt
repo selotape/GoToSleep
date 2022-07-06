@@ -11,8 +11,12 @@ import android.widget.CompoundButton
 import android.widget.NumberPicker
 import android.widget.TimePicker
 import androidx.appcompat.app.AppCompatActivity
+import androidx.work.ExistingWorkPolicy.REPLACE
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
+import java.util.concurrent.TimeUnit.MINUTES
 
 
 const val SHARED_PREFS_NAME = "SHARED_PREFS_NAME"
@@ -20,6 +24,7 @@ const val ENABLED = "ENABLED_PREF"
 const val TIME_MIN = "TIME_MIN" // HH:MM
 const val TIME_HOUR = "TIME_HOUR" // HH:MM
 const val FREQ_IN_MINUTES = "FREQ_IN_MINUTES"
+const val NUM_NOTIFICATIONS = 3
 const val TAG = "GoToSleep"
 
 
@@ -81,7 +86,7 @@ class MainActivity : AppCompatActivity() {
 
         val freqMins = prefs.getLong(FREQ_IN_MINUTES, 5)
         val startHour = prefs.getInt(TIME_HOUR, 23)
-        var startMin = prefs.getInt(TIME_MIN, 0)
+        val startMin = prefs.getInt(TIME_MIN, 0)
         val startTime = LocalDateTime.of(
             currentYear, currentMonth, currentDayOfMonth,
             startHour, startMin
