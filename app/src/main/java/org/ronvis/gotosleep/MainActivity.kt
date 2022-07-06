@@ -24,7 +24,7 @@ const val ENABLED = "ENABLED_PREF"
 const val TIME_MIN = "TIME_MIN" // HH:MM
 const val TIME_HOUR = "TIME_HOUR" // HH:MM
 const val FREQ_IN_MINUTES = "FREQ_IN_MINUTES"
-const val NUM_NOTIFICATIONS = 3
+const val NUM_NOTIFICATIONS = 100
 const val TAG = "GoToSleep"
 
 
@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         val timeInput = findViewById<TimePicker>(R.id.turnOffTimeInput)
         val freqInput = findViewById<NumberPicker>(R.id.turnOffFrequencyInput)
         freqInput.minValue = 1
-        freqInput.maxValue = 30
+        freqInput.maxValue = 10
 
         val prefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE)
         val editor: SharedPreferences.Editor = prefs.edit()
@@ -71,7 +71,6 @@ class MainActivity : AppCompatActivity() {
             editor.putBoolean(ENABLED, enabled)
             Log.i(TAG, "Enabled: $enabled")
             editor.apply()
-            rescheduleAllNotifications()
         }
         rescheduleAllNotifications()
     }
