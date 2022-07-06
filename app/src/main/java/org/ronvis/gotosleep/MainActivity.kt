@@ -15,6 +15,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 
 
+const val SHARED_PREFS_NAME = "SHARED_PREFS_NAME"
 const val ENABLED = "ENABLED_PREF"
 const val TIME_MIN = "TIME_MIN" // HH:MM
 const val TIME_HOUR = "TIME_HOUR" // HH:MM
@@ -37,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         freqInput.minValue = 1
         freqInput.maxValue = 30
 
-        val prefs = getPreferences(MODE_PRIVATE)
+        val prefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE)
         val editor: SharedPreferences.Editor = prefs.edit()
 
 
@@ -51,23 +52,65 @@ class MainActivity : AppCompatActivity() {
             editor.putInt(TIME_MIN, minute)
             Log.i(TAG, "Time changed to ${hourOfDay}:${minute}")
             editor.apply()
+            rescheduleAllNotifications()
         }
 
         freqInput.setOnValueChangedListener { _, oldVal, newVal ->
-            editor.putInt(FREQ_IN_MINUTES, newVal)
+            editor.putLong(FREQ_IN_MINUTES, newVal.toLong())
             Log.i(TAG, "Frequency changed to every $newVal (from $oldVal)")
             editor.apply()
+            rescheduleAllNotifications()
         }
 
         enableDisableToggle.setOnCheckedChangeListener { _: CompoundButton, enabled: Boolean ->
             editor.putBoolean(ENABLED, enabled)
             Log.i(TAG, "Enabled: $enabled")
             editor.apply()
+            rescheduleAllNotifications()
         }
+        rescheduleAllNotifications()
+    }
 
-        val notifyRequest = OneTimeWorkRequestBuilder<NotifierWorker>().addTag("ronvis").build()
-        workManager.beginWith(notifyRequest).enqueue()
+    private fun rescheduleAllNotifications() {
+        val prefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE)
 
+        val currentYear = LocalDateTime.now().year
+        val currentMonth = LocalDateTime.now().month
+        val currentDayOfMonth = LocalDateTime.now().dayOfMonth
+
+
+        val freqMins = prefs.getLong(FREQ_IN_MINUTES, 5)
+        val startHour = prefs.getInt(TIME_HOUR, 23)
+        var startMin = prefs.getInt(TIME_MIN, 0)
+        val startTime = LocalDateTime.of(
+            currentYear, currentMonth, currentDayOfMonth,
+            startHour, startMin
+        )
+
+        val currentTime = LocalDateTime.now()
+
+
+        for (n in 0..NUM_NOTIFICATIONS) {
+
+
+            var targetDateTime = startTime.plusMinutes(freqMins * n)
+            if (targetDateTime < currentTime) {
+                targetDateTime = targetDateTime.plusDays(1)
+            }
+
+            val minsUntilTargetTime = currentTime.until(targetDateTime, ChronoUnit.MINUTES)
+
+
+            val notifyRequest = OneTimeWorkRequestBuilder<NotifierWorker>().setInitialDelay(
+                minsUntilTargetTime,
+                MINUTES
+            ).build()
+            workManager.beginUniqueWork(
+                getString(R.string.worker_name) + n,
+                REPLACE,
+                notifyRequest
+            ).enqueue()
+        }
     }
 
 
