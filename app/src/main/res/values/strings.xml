@@ -9,4 +9,6 @@
     <string name="channel_description">ignored</string>
     <string name="channel_name">ignored</string>
     <string name="worker_name">worker_name</string>
+    <string name="displaying_over_other_apps">Displaying over other apps!</string>
+    <string name="remove_annoying_popup">Remove</string>
 </resources>
