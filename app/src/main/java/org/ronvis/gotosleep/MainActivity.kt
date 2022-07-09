@@ -21,7 +21,6 @@ const val TIME_MIN = "TIME_MIN" // HH:MM
 const val TIME_HOUR = "TIME_HOUR" // HH:MM
 const val FREQ_IN_MINUTES = "FREQ_IN_MINUTES"
 const val NUM_NOTIFICATIONS = 100
-const val TAG = "GoToSleep"
 
 
 class MainActivity : AppCompatActivity() {
