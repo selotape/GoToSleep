@@ -2,18 +2,39 @@ package org.ronvis.gotosleep
 
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
+import android.content.Intent
+import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 
 
-class NotifierWorker(private val ctx: Context, params: WorkerParameters) : Worker(ctx, params) {
+class AnnoyWorker(private val ctx: Context, params: WorkerParameters) : Worker(ctx, params) {
+
+    init {
+        askForOverlayPermission()
+    }
 
     override fun doWork(): Result {
         raiseNotification()
+        startAnnoyingPopup()
         return Result.success()
     }
+
+    // method to ask user to grant the Overlay permission
+    private fun askForOverlayPermission() {
+        if (!Settings.canDrawOverlays(ctx)) {
+            // send user to the device settings
+            val overlayIntent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+            ctx.startActivity(overlayIntent)
+        }
+    }
+
+    private fun startAnnoyingPopup() {
+        ctx.startForegroundService(Intent(ctx, AnnoyingPopupForegroundService::class.java))
+    }
+
 
     private fun raiseNotification() {
         val prefs = ctx.getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE)

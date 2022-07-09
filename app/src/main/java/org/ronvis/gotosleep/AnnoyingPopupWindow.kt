@@ -5,7 +5,6 @@ import android.graphics.PixelFormat
 import android.util.Log
 import android.view.*
 
-
 class AnnoyingPopupWindow(private val context: Context) {
     private val mView: View
     private var mParams: WindowManager.LayoutParams? = null
