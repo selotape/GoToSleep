@@ -3,13 +3,9 @@ package org.ronvis.gotosleep
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.SharedPreferences
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.widget.CheckBox
-import android.widget.CompoundButton
-import android.widget.NumberPicker
-import android.widget.TimePicker
+import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import androidx.work.ExistingWorkPolicy.REPLACE
 import androidx.work.OneTimeWorkRequestBuilder
@@ -35,44 +31,70 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         super.setContentView(R.layout.activity_main)
-        createNotificationChannel()
+        checkOverlayPermission()
+        startAnnoyingPopup()
+//
+//        createNotificationChannel()
+//
+//        val enableDisableToggle = findViewById<CheckBox>(R.id.enableDisableToggle)
+//        val timeInput = findViewById<TimePicker>(R.id.turnOffTimeInput)
+//        val freqInput = findViewById<NumberPicker>(R.id.turnOffFrequencyInput)
+//        freqInput.minValue = 1
+//        freqInput.maxValue = 10
+//
+//        val prefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE)
+//        val editor: SharedPreferences.Editor = prefs.edit()
+//
+//
+//        enableDisableToggle.isChecked = prefs.getBoolean(ENABLED, true)
+//        timeInput.hour = prefs.getInt(TIME_HOUR, 23)
+//        timeInput.minute = prefs.getInt(TIME_MIN, 0)
+//        freqInput.value = prefs.getInt(FREQ_IN_MINUTES, 5)
+//
+//        timeInput.setOnTimeChangedListener { _, hourOfDay, minute ->
+//            editor.putInt(TIME_HOUR, hourOfDay)
+//            editor.putInt(TIME_MIN, minute)
+//            Log.i(TAG, "Time changed to ${hourOfDay}:${minute}")
+//            editor.apply()
+//            rescheduleAllNotifications()
+//        }
+//
+//        freqInput.setOnValueChangedListener { _, oldVal, newVal ->
+//            editor.putLong(FREQ_IN_MINUTES, newVal.toLong())
+//            Log.i(TAG, "Frequency changed to every $newVal (from $oldVal)")
+//            editor.apply()
+//            rescheduleAllNotifications()
+//        }
+//
+//        enableDisableToggle.setOnCheckedChangeListener { _: CompoundButton, enabled: Boolean ->
+//            editor.putBoolean(ENABLED, enabled)
+//            Log.i(TAG, "Enabled: $enabled")
+//            editor.apply()
+//        }
+//        rescheduleAllNotifications()
+    }
 
-        val enableDisableToggle = findViewById<CheckBox>(R.id.enableDisableToggle)
-        val timeInput = findViewById<TimePicker>(R.id.turnOffTimeInput)
-        val freqInput = findViewById<NumberPicker>(R.id.turnOffFrequencyInput)
-        freqInput.minValue = 1
-        freqInput.maxValue = 10
-
-        val prefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE)
-        val editor: SharedPreferences.Editor = prefs.edit()
-
-
-        enableDisableToggle.isChecked = prefs.getBoolean(ENABLED, true)
-        timeInput.hour = prefs.getInt(TIME_HOUR, 23)
-        timeInput.minute = prefs.getInt(TIME_MIN, 0)
-        freqInput.value = prefs.getInt(FREQ_IN_MINUTES, 5)
-
-        timeInput.setOnTimeChangedListener { _, hourOfDay, minute ->
-            editor.putInt(TIME_HOUR, hourOfDay)
-            editor.putInt(TIME_MIN, minute)
-            Log.i(TAG, "Time changed to ${hourOfDay}:${minute}")
-            editor.apply()
-            rescheduleAllNotifications()
+    // method to ask user to grant the Overlay permission
+    private fun checkOverlayPermission() {
+        if (!Settings.canDrawOverlays(this)) {
+//             send user to the device settings
+            val overlayIntent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+            startActivity(overlayIntent)
         }
+    }
 
-        freqInput.setOnValueChangedListener { _, oldVal, newVal ->
-            editor.putLong(FREQ_IN_MINUTES, newVal.toLong())
-            Log.i(TAG, "Frequency changed to every $newVal (from $oldVal)")
-            editor.apply()
-            rescheduleAllNotifications()
-        }
+    private fun startAnnoyingPopup() {
+        // check if the user has already granted the Draw over other apps permission
+        if (!Settings.canDrawOverlays(this)) return
 
-        enableDisableToggle.setOnCheckedChangeListener { _: CompoundButton, enabled: Boolean ->
-            editor.putBoolean(ENABLED, enabled)
-            Log.i(TAG, "Enabled: $enabled")
-            editor.apply()
-        }
-        rescheduleAllNotifications()
+        startForegroundService(Intent(this, AnnoyingPopupForegroundService::class.java))
+    }
+
+    // check for permission again when user grants it from
+    // the device settings, and start the service
+    override fun onResume() {
+        super.onResume()
+        startAnnoyingPopup()
     }
 
     private fun rescheduleAllNotifications() {
@@ -87,8 +109,7 @@ class MainActivity : AppCompatActivity() {
         val startHour = prefs.getInt(TIME_HOUR, 23)
         val startMin = prefs.getInt(TIME_MIN, 0)
         val startTime = LocalDateTime.of(
-            currentYear, currentMonth, currentDayOfMonth,
-            startHour, startMin
+            currentYear, currentMonth, currentDayOfMonth, startHour, startMin
         )
 
         val currentTime = LocalDateTime.now()
@@ -106,13 +127,10 @@ class MainActivity : AppCompatActivity() {
 
 
             val notifyRequest = OneTimeWorkRequestBuilder<NotifierWorker>().setInitialDelay(
-                minsUntilTargetTime,
-                MINUTES
+                minsUntilTargetTime, MINUTES
             ).build()
             workManager.beginUniqueWork(
-                getString(R.string.worker_name) + n,
-                REPLACE,
-                notifyRequest
+                getString(R.string.worker_name) + n, REPLACE, notifyRequest
             ).enqueue()
         }
     }
