@@ -31,7 +31,7 @@ class AnnoyingPopupWindow(private val context: Context) {
 
         // set onClickListener on the remove button, which removes
         // the view from the window
-        mView.findViewById<View>(R.id.window_close).setOnClickListener { close() }
+//        mView.findViewById<View>(R.id.window_close).setOnClickListener { close() }
 
         // Define the position of the
         // window within the screen
