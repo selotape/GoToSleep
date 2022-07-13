@@ -11,11 +11,12 @@ import android.widget.CompoundButton
 import android.widget.NumberPicker
 import android.widget.TimePicker
 import androidx.appcompat.app.AppCompatActivity
-import androidx.work.ExistingWorkPolicy.REPLACE
-import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeUnit.MINUTES
 
 
@@ -33,7 +34,7 @@ const val TAG = "GoToSleep"
 
 class MainActivity : AppCompatActivity() {
 
-    private val workManager: WorkManager = WorkManager.getInstance(this)
+    private val workManager = WorkManager.getInstance(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,13 +106,13 @@ class MainActivity : AppCompatActivity() {
 
             val minsUntilTargetTime = currentTime.until(targetDateTime, ChronoUnit.MINUTES)
 
-            val annoyRequest = OneTimeWorkRequestBuilder<AnnoyWorker>().setInitialDelay(
+            val annoyRequest = PeriodicWorkRequestBuilder<AnnoyWorker>(1, TimeUnit.DAYS).setInitialDelay(
                 minsUntilTargetTime, MINUTES
             ).build()
 
             val workName = getString(R.string.worker_name) + n
             Log.i(TAG, "Scheduling annoyRequest $workName for $startTime")
-            workManager.beginUniqueWork(workName, REPLACE, annoyRequest).enqueue()
+            workManager.enqueueUniquePeriodicWork(workName, ExistingPeriodicWorkPolicy.REPLACE, annoyRequest)
 
         }
     }

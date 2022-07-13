@@ -5,7 +5,7 @@ import android.graphics.PixelFormat
 import android.util.Log
 import android.view.*
 
-class AnnoyingPopupWindow(private val context: Context) {
+class AnnoyingPopupWindow(private val ctx: Context) {
     private val mView: View
     private var mParams: WindowManager.LayoutParams? = null
     private val mWindowManager: WindowManager
@@ -24,7 +24,7 @@ class AnnoyingPopupWindow(private val context: Context) {
         )
 
         // getting a LayoutInflater
-        layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        layoutInflater = ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
         // inflating the view with the custom layout we created
         mView = layoutInflater.inflate(R.layout.annoying_popup, null)
@@ -36,7 +36,7 @@ class AnnoyingPopupWindow(private val context: Context) {
         // Define the position of the
         // window within the screen
         mParams!!.gravity = Gravity.CENTER
-        mWindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        mWindowManager = ctx.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     }
 
     fun open() {
@@ -56,7 +56,7 @@ class AnnoyingPopupWindow(private val context: Context) {
     fun close() {
         try {
             // remove the view from the window
-            (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).removeView(mView)
+            (ctx.getSystemService(Context.WINDOW_SERVICE) as WindowManager).removeView(mView)
             // invalidate the view
             mView.invalidate()
             // remove all views
