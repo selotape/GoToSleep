@@ -8,6 +8,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import java.time.LocalTime
 
 
 class AnnoyWorker(private val ctx: Context, params: WorkerParameters) : Worker(ctx, params) {
@@ -17,9 +18,17 @@ class AnnoyWorker(private val ctx: Context, params: WorkerParameters) : Worker(c
     }
 
     override fun doWork(): Result {
-        raiseNotification()
-        startAnnoyingPopup()
+        if (itsNightTime())        {
+            raiseNotification()
+            startAnnoyingPopup()
+        }
         return Result.success()
+    }
+
+    private fun itsNightTime(): Boolean {
+        val now = LocalTime.now()
+        return now.hour !in 5..22
+
     }
 
     // method to ask user to grant the Overlay permission
