@@ -62,6 +62,7 @@ class MainActivity : AppCompatActivity() {
             Log.i(TAG, "Time changed to ${hourOfDay}:${minute}")
             editor.apply()
             rescheduleAllWorkers()
+
         }
 
         freqInput.setOnValueChangedListener { _, oldVal, newVal ->
